@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theater Booking</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="header-wrapper">
+            <div class="page-header">
+                <h3>Theater Booking</h3>
+            </div>
+            <div id="purchases" class="purchased-tickets">
+                <p>Purchased tickets</p>
+                <p id="quantity" class="quantity"></p>
+            </div>
+        </div>
+    </header>
+    <!-- Content -->
+    <div class="content-wrapper">
+        <div class="days-wrapper">
+            <div class="d-flex direction-column w-100">
+                <p class="section-header">Monday - Friday</p>
+                <div id="monday" data-weekend="false" class="single-content days">
+                    <p>Monday</p>
+                </div>
+                <div id="tuesday" data-weekend="false" class="single-content days">
+                    <p>Tuesday</p>
+                </div>
+                <div id="wednesday" data-weekend="false" class="single-content days">
+                    <p>Wednesday</p>
+                </div>
+                <div id="thursday" data-weekend="false" class="single-content days">
+                    <p>Thursday</p>
+                </div>
+                <div id="friday" data-weekend="false" class="single-content days">
+                    <p>Friday</p>
+                </div>
+            </div>
+            <div class="d-flex direction-column w-100">
+                <p class="section-header">Weekend</p>                    
+                <div id="saturday" data-weekend="true" class="single-content days">
+                    <p>Saturday</p>
+                </div>
+                <div id="sunday" data-weekend="true" class="single-content days">
+                    <p>Sunday</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Popup -->
+    <div class="bg-overlay"></div>
+    <div class="popup">
+        <div class="d-flex direction-column">
+            <div id="popupTitle" class="section-header" data-day="">
+                <p></p>
+            </div>
+            <div class="sessions">
+                <div class="single-content ticket non-weekend" data-start="10">
+                    <p>10:00 - 12:00</p>
+                </div>
+                <div class="single-content ticket" data-start="12">
+                    <p>12:00 - 14:00</p>
+                </div>
+                <div class="single-content ticket" data-start="14">
+                    <p>14:00 - 16:00</p>
+                </div>
+                <div class="single-content ticket" data-start="16">
+                    <p>16:00 - 18:00</p>
+                </div>
+                <div class="single-content ticket" data-start="18">
+                    <p>18:00 - 20:00</p>
+                </div>
+            </div>
+            <div class="purchases-list">
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    let tickets = [];
+    let newTicket;
+    $(document).ready(function(){
+        getPurchasedTickets();
+    });
+    // open popup 
+    $(".days, .purchased-tickets").click(function(){
+        $(".popup, .bg-overlay").addClass('visible');
+        var id = $(this).attr("id");
+        var weekend = $(this).attr("data-weekend");
+        // Purchased ticket popup
+        if(id == 'purchases'){
+            $(".purchases-list").empty();
+            $(".sessions").hide();
+            $(".purchases-list").show();
+            for(let i = 0; i < tickets.length; i++){
+                var ticket = JSON.parse(tickets[i]);
+                $(".purchases-list").append(`<div class="single-content purchased-ticket" data-start="${Object.values(ticket)}" data-day="${Object.keys(ticket)}"><p>${Object.keys(ticket)}  ${Object.values(ticket)}:00 - ${parseInt(Object.values(ticket)) + 2}:00 </p></div>`);
+            }
+        }
+        else{
+            $(".purchases-list").hide();            
+            $(".sessions").show();
+            $(".sessions .single-content").removeClass('sold').addClass('ticket');
+            for(let i = 0; i < tickets.length; i++){
+                if(Object.keys(JSON.parse(tickets[i]))[0] == id){                    
+                    $(`[data-start=${Object.values(JSON.parse(tickets[i]))[0]}]`).addClass('sold');
+                }
+            }
+            if(weekend && weekend == 'true'){
+                $(".non-weekend").hide();
+            }else{
+                $(".non-weekend").show();                
+            }
+        }
+        $("#popupTitle p").text(id.charAt(0).toUpperCase() + id.slice(1));
+        $("#popupTitle").attr('data-day', id);
+    });
+    // close popup
+    $(".bg-overlay").click(function(){
+        $(".popup, .bg-overlay").removeClass('visible');        
+    });
+    // save ticket to localstorage
+    $(document).on('click', '.ticket', function(){
+        var session = $(this)[0].dataset.start;
+        saveTicket(session);
+        getPurchasedTickets();
+        $(this).removeClass('ticket').addClass('sold');
+    });
+    // remove ticket from session list
+    $(document).on('click', ".sold" , function(){
+        if(confirm("Are you sure you want to remove this ticket?")){
+            $(this).removeClass('sold').addClass('ticket');
+            var day = $("#popupTitle").attr('data-day');
+            var session = $(this).attr("data-start");
+            removeTicket(day, session);
+        }
+    });
+    // remove ticket from cart
+    $(document).on('click', '.purchased-ticket', function(){
+        if(confirm("Are you sure you want to remove this ticket?")){           
+            var day = $(this).attr("data-day");
+            var session = $(this).attr("data-start");
+            removeTicket(day, session);
+            $(this).remove();
+        }
+    });
+    // Get tickets
+    function getPurchasedTickets(){
+        if(localStorage.length > 0){
+            // console.log(localStorage.getItem('tickets'));
+            tickets = (localStorage.getItem('tickets')).split(",");
+            $(".quantity").show().text(tickets.length)
+            // $(".purchases-list").a
+            // console.dir(tickets);
+        } 
+    }
+    // Save tickets
+    function saveTicket(session){
+        var day = $("#popupTitle").attr('data-day');
+        newTicket = {}; 
+        newTicket[`${day}`] = session;
+        tickets.push(JSON.stringify(newTicket)); 
+        localStorage.setItem('tickets', `${tickets}`);
+    }
+    // Remove tickets
+    function removeTicket(day, session){
+        for(let i = 0 ; i < tickets.length; i++){
+            var ticket = JSON.parse(tickets[i]);
+            if(Object.keys(ticket)[0] == day && Object.values(ticket)[0] == session){
+                const index = tickets.indexOf(tickets[i]);
+                tickets.splice(index, 1);
+                localStorage.removeItem('tickets');
+                localStorage.setItem('tickets', `${tickets}`);
+                if(tickets.length > 0){                    
+                    $(".quantity").show().text(tickets.length);            
+                }
+            }
+        }
+        alert(`Congratulations, ${day} ${session}:00 - ${parseInt(session) + 2}:00 session has been removed successfully!`);
+    }
+</script>

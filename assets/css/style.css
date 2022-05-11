@@ -1,0 +1,169 @@
+/* Overloading existing elements */
+* {
+    margin: 0;
+}
+body{
+    background-color: antiquewhite;
+}
+header, .content-wrapper{
+    max-width: 1440px;
+    padding: 1rem 13rem;
+}
+
+/* Custom classes */
+.w-100{
+    width: 100%;
+}
+.d-flex{
+    display: flex;
+}
+.direction-column{
+    flex-direction: column;
+}
+.justify-content-between{
+    justify-content: space-between;
+}
+.justify-content-end{
+    justify-content: end;
+}
+.cursor-pointer{
+    cursor: pointer;
+}
+
+/* Popup */
+.popup{
+    background-color: beige;
+    position: absolute;
+    width: 50vw;
+    height: inherit;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    z-index: 2000;
+}
+.bg-overlay{
+    background: rgba(10, 10, 10, 0.877);
+    width: 100vw;
+    height: 100vh;
+    z-index: 1999;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: none;
+
+}
+.visible{
+    display: block;
+}
+
+/* Header */
+.header-wrapper{
+    display: flex;
+    justify-content: end;
+    padding: 1rem 2rem;
+    background-color: #fff;
+}
+.page-header{
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.quantity{
+    border-radius: 50%;
+    width: 1em;
+    height: 1em;
+    background-color: red;
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(100%, -50%);
+    display: none;
+    text-align: center;
+    padding: 0.1em;
+
+}
+/* Main content  */
+.days-wrapper{
+    display: flex;
+    justify-content: space-between;
+}
+.single-content{
+    background-color: #fff;
+    border-radius: 0.1em;
+    padding: 1em 2em;
+    border: 0.1em black solid;
+    max-width: 50%;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    margin: 1em;
+    cursor: pointer;
+}
+.content-wrapper::after{
+    content: "";
+    display: inline-block;
+    width: 0.1em;
+    height: 100%;
+}
+.section-header{
+    margin-top: 0.5em;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+
+/* Tickets */
+.ticket{
+    background-color: green;
+    color: #fff ;
+}
+.sold{
+    background-color: red;
+}
+
+.purchased-tickets{
+    position: relative;
+    cursor: pointer;
+}
+.purchased-ticket:active{
+    background-color: rgba(83, 82, 82, 0.521);
+    color: #fff;
+    box-shadow: 4px 4px 10px #000;
+}
+
+/* Responsives */
+@media (max-width:1200px) {
+    header, .content-wrapper{
+        padding: 1rem 7rem;
+    }
+}
+@media (max-width: 991px){
+    .days-wrapper{
+        flex-direction: column;
+    }
+    header, .content-wrapper{
+        padding: 1rem 3rem;
+    }
+    .sessions .single-content, .purchases-list .single-content{
+        max-width: unset !important;
+        left: unset !important;
+        transform: unset !important;
+    }
+}
+@media (max-width: 699px){
+    .header-wrapper{
+        justify-content: space-between;
+    }
+    .page-header{
+        position: relative;
+        left: 0;
+        transform: unset;
+    }
+    header, .content-wrapper{
+        padding: 1rem 1rem;
+    }
+
+}
